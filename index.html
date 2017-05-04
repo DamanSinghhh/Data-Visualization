@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/stylesheet.css') }}">
+		<!--<link rel='stylesheet' type='text/css' href='../static/css/stylesheet.css' media="screen">-->
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+		<meta name="author" content="">
+		<meta charset="utf-8">
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script src="http://code.highcharts.com/highcharts.js"></script>
+		<script>
+		function selectChangestation(val)
+		{
+		//Set the value of action in action attribute of form element.
+		//Submit the form
+			$('#stationsform').submit();
+		}
+		</script>
+
+		<script>
+		function selectChangeDevice(val)
+		{
+		//Set the value of action in action attribute of form element.
+		//Submit the form
+			$('#devicesform').submit();
+		}
+		</script>
+
+		<script>
+		function selectChangeplato(val)
+		{
+		//Set the value of action in action attribute of form element.
+		//Submit the form
+			$('#plotform').submit();
+		}
+		</script>
+	{% block head %}
+			<title>{% block title %} Device-Visualization{% endblock %}</title>
+		{% endblock %}
+	</head>
+	<body>
+	
+	{% if not device_name %}
+	<!--<p>"If you torture the device long enough, it will confess."</p>-->
+	{% endif %}
+	<nav role='navigation'>
+		<ul>
+
+		    
+			
+				{% if uploadtobe %}
+				<li class = "div1">
+
+		    	   <form id="fileform" action = "" method = "POST"  enctype = "multipart/form-data">
+ 		    	  	<!--<input type="file" class="hide_file">-->
+		     	    <input type="file" name ="file" class="file-upload" style="border: 0px ; display: inline-block; padding: 0px 0 0px 0px; box-sizing: border-box;"/>
+		    	     <input type = "submit" value = "Upload File" />
+		    	   </form>
+		    	   
+		    	</li>
+		    	{% else %}
+		    		<li class = "div1" >
+		    			<a style = "display: inline; " href="{{ url_for('upload') }}" > Home</a>
+		    		</li>
+		    	{% endif %}
+		    
+		    <li class = "div1">	
+      				<form id="stationsform" action = "/uploads/{{filename}}" method = "POST"  >
+      					<a  style="display: inline; "> Stations </a>
+						<select name="stations" onChange=selectChangestation(this.value) class = "file-upload" >
+						{% if station_name %}
+							<option value="{{station_name}}">{{station_name}}</option>
+						{% else %}
+							<option value="">Choose Station</option>
+						{% endif %}
+						{% for station in stations %}
+							<option value={{station}}>{{station}}</option>
+						{% endfor %}
+						</select>
+					</form>      		
+      			
+    		</li>
+    		<!--<li class = "div1">-->
+
+      				<!--<form id="devicesform" action = "/uploads/{{filename}}/{{station_name}}" method = "POST" >-->
+      					<!--<a style="display: inline;"> Devices </a>-->
+						<!--<select name="devices" onChange=selectChangeDevice(this.value) class = "file-upload" >-->
+							<!--{% if device_name %}-->
+							<!--<option value="{{device_name}}">{{device_name}}</option>-->
+							<!--{% else %}-->
+							<!--<option value="">Choose Device</option>-->
+							<!--{% endif %}-->
+							<!--<option value="All">All</option>-->
+							<!--{% for device in devices %}-->
+    							<!--<option value={{device}}>{{device}}</option>-->
+							<!--{% endfor %}-->
+  						<!--</select>-->
+    				<!--</form>-->
+
+
+    		<!--</li>-->
+
+    		<!--<li class = "div1">-->
+      			<!---->
+      				<!--<form id="plotform" action = "/uploads/{{filename}}/{{station_name}}/{{device_name}}" method = "POST" >-->
+      					<!--<a style="display: inline;"> Data to Visualize </a>-->
+						<!--<select name="plato" onChange=selectChangeplato(this.value) class = "file-upload" >-->
+							<!--{% if plato_name %}-->
+							<!--<option value="{{plato_name}}">{{plato_name}}</option>-->
+							<!--{% else %}-->
+							<!--<option value="">Data to Visualize</option>-->
+							<!--{% endif %}-->
+							<!--<option value="Cygnus">Cygnus</option>option-->
+							<!--<option value="Draco">Draco</option>-->
+							<!--&lt;!&ndash;<option value="">MEMORY</option>&ndash;&gt;-->
+						<!--</select>-->
+    				<!--</form>-->
+        			        <!---->
+      			<!---->
+    		<!--</li>-->
+		</ul>
+	</nav>
+	<br><br><br>
+	{% for i in range(chartID|length) %}
+		<center><div id={{ chartID[i]|safe }} class="charts"></div></center>
+		<br>
+		<br>
+		<script>
+			var allrats = {0:'', 1:'OOS', 2:'UNKNOWN', 3:'IDEN', 4:'1xRTT', 5:'CDMA', 6:'EVDO_0',
+			   7:'EVDO_A', 8:'EVDO_B+', 9:'EHRPD', 10:'GPRS', 11:'EDGE', 12:'UMTS', 13:'TDSCDMA',
+			   14:'HSDPA', 15:'HSUPA', 16:'HSPA', 17:'HSPA+', 18:'IWLAN', 19:'LTE', 20:'LTE_CA'};
+			var chart_id = {{ chartID[i]|safe }}
+			var series = {{ series[i]|safe }}
+			var title = {{ title[i]|safe }}
+			var xAxis = {{ xAxis[i]|safe }}
+			var yAxis = {{ yAxis[i]|safe }}
+			var chart = {{ chart[i]|safe }}
+			var desc = {{ desc_array[i]|safe }}
+			$(chart_id).highcharts({
+				chart: chart,
+				title: title,
+				xAxis: xAxis,
+				yAxis: {
+				tickPositions: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    			//tickPositions: desc,
+    			title: {
+                text: 'RAT INFO'
+            	},
+    			labels: {
+        			formatter: function() {
+            		var value = allrats[this.value];
+            		return value;
+        		}
+    			}
+				},
+				series: series
+			});
+
+		</script>
+	{% endfor %}
+	</body>
+
+
+</html>
